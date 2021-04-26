@@ -1,0 +1,47 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+   config.vm.define "vm-3" do |machine|
+    machine.vm.box = "debian/contrib-stretch64"
+    machine.vm.box_url = "debian/contrib-stretch64"
+    machine.vm.hostname = "vm-3"
+    machine.vm.network "public_network", bridge: "vxlan10", ip: "10.10.0.16"
+    machine.vm.synced_folder "./data", "/partage"
+    machine.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--name", "vm-3"]
+      v.customize ["modifyvm", :id, "--groups", "/demo-vxlan"]
+      v.customize ["modifyvm", :id, "--cpus", "1"]
+      v.customize ["modifyvm", :id, "--memory", 512]
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    end
+    machine.vm.provision "shell", inline: <<-SHELL
+      sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/g' /etc/ssh/sshd_config    
+      sleep 3
+      service ssh restart
+    SHELL
+    machine.vm.provision "shell", path: "scripts/install_sys.sh"
+  end
+  config.vm.define "vm-4" do |machine|
+  machine.vm.box = "debian/contrib-stretch64"
+  machine.vm.box_url = "debian/contrib-stretch64"
+  machine.vm.hostname = "vm-4"
+  machine.vm.network "public_network", bridge: "vxlan20", ip: "10.20.0.16"
+  machine.vm.synced_folder "./data", "/partage"
+  machine.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--name", "vm-4"]
+      v.customize ["modifyvm", :id, "--groups", "/demo-vxlan"]
+      v.customize ["modifyvm", :id, "--cpus", "1"]
+      v.customize ["modifyvm", :id, "--memory", 512]
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    end
+    machine.vm.provision "shell", inline: <<-SHELL
+      sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/g' /etc/ssh/sshd_config    
+      sleep 3
+      service ssh restart
+    SHELL
+    machine.vm.provision "shell", path: "scripts/install_sys.sh"
+  end
+end

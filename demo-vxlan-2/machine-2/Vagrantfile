@@ -22,6 +22,10 @@ Vagrant.configure("2") do |config|
       service ssh restart
     SHELL
     machine.vm.provision "shell", path: "scripts/install_sys.sh"
+    machine.vm.provision "shell",
+      run: "always",
+      inline: "ip link set eth1 mtu 1400"
+
   end
   config.vm.define "vm-4" do |machine|
   machine.vm.box = "debian/contrib-stretch64"
@@ -43,5 +47,8 @@ Vagrant.configure("2") do |config|
       service ssh restart
     SHELL
     machine.vm.provision "shell", path: "scripts/install_sys.sh"
+    machine.vm.provision "shell",
+      run: "always",
+      inline: "ip link set eth1 mtu 1400"
   end
 end
